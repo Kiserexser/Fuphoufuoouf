@@ -1,9 +1,9 @@
 package name.modid.gui;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
 public class ClickGuiScreen extends Screen {
     private static final int WINDOW_WIDTH = 277;
@@ -16,11 +16,11 @@ public class ClickGuiScreen extends Screen {
     private long startTime = 0;
 
     public ClickGuiScreen() {
-        super(Text.literal("ClickGUI"));
+        super(Component.literal("ClickGUI"));
     }
 
     @Override
-    public void init() {
+    protected void init() {
         super.init();
         animationProgress = 0f;
         startTime = System.currentTimeMillis();
@@ -31,17 +31,17 @@ public class ClickGuiScreen extends Screen {
         super.tick();
         long elapsed = System.currentTimeMillis() - startTime;
         if (elapsed < 300) {
-            animationProgress = MathHelper.clamp((float) elapsed / 300f, 0f, 1f);
+            animationProgress = Mth.clamp((float) elapsed / 300f, 0f, 1f);
         } else {
             animationProgress = 1f;
         }
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        // затемнение фона
+        // Затемнение фона
         context.fill(0, 0, this.width, this.height, 0x66000000);
 
         int totalWidth = WINDOW_WIDTH * 5 + GAP * 4;
@@ -58,16 +58,15 @@ public class ClickGuiScreen extends Screen {
             int w = (int) (WINDOW_WIDTH * scale);
             int h = (int) (WINDOW_HEIGHT * scale);
 
-            // Рисуем окно с закруглениями
-            // Если fillRounded не компилируется – замени на context.fill(...)
-            context.fillRounded(x, y, x + w, y + h, CORNER_RADIUS, BG_COLOR);
+            // В официальных маппингах нет fillRounded, рисуем обычный прямоугольник
+            context.fill(x, y, x + w, y + h, BG_COLOR);
         }
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 256) { // ESC
-            this.close();
+            this.onClose();
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
